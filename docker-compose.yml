@@ -1,0 +1,42 @@
+﻿services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: usersdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: suasenha
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: usersdb
+      DB_USER: postgres
+      DB_PASS: suasenha
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
